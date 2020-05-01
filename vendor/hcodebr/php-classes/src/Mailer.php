@@ -5,17 +5,20 @@ namespace Hcode;
 use Rain\Tpl;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
+use Hcode\Model\SystemConfig;
 
 class Mailer {
 
-	const USERNAME = "juliocrmartins@gmail.com";
-	const PASSWORD = "61fc0e0b55";
 	const NAMEFROM = "Hcode Store";
 
 	private $mail;
 
 	public function __construct($toAddress, $toName, $subject, $tplName, $data = array())
 	{
+		$systemConfig = new SystemConfig();
+
+		$systemConfig->get();
+
 		$config = array(
 			"tpl_dir"       => $_SERVER["DOCUMENT_ROOT"]."/views/email/",
 			"cache_dir"     => $_SERVER["DOCUMENT_ROOT"]."/views-cache/",
@@ -45,13 +48,13 @@ class Mailer {
 		$this->mail->SMTPDebug = SMTP::DEBUG_OFF;
 
 		//Set the hostname of the mail server
-		$this->mail->Host = 'smtp.gmail.com';
+		$this->mail->Host = $systemConfig->getmailhost();
 		// use
 		// $mail->Host = gethostbyname('smtp.gmail.com');
 		// if your network does not support SMTP over IPv6
 
 		//Set the SMTP port number - 587 for authenticated TLS, a.k.a. RFC4409 SMTP submission
-		$this->mail->Port = 587;
+		$this->mail->Port = $systemConfig->getmailport();
 
 		//Set the encryption mechanism to use - STARTTLS or SMTPS
 		$this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
@@ -60,13 +63,13 @@ class Mailer {
 		$this->mail->SMTPAuth = true;
 
 		//Username to use for SMTP authentication - use full email address for gmail
-		$this->mail->Username = Mailer::USERNAME;
+		$this->mail->Username = $systemConfig->getmailusername();
 
 		//Password to use for SMTP authentication
-		$this->mail->Password = Mailer::PASSWORD;
+		$this->mail->Password = $systemConfig->getmailpassword();
 
 		//Set who the message is to be sent from
-		$this->mail->setFrom(Mailer::USERNAME, Mailer::NAMEFROM);
+		$this->mail->setFrom($systemConfig->getmailusername(), Mailer::NAMEFROM);
 
 		//Set an alternative reply-to address
 		//$mail->addReplyTo('replyto@example.com', 'First Last');
